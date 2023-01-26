@@ -1,0 +1,332 @@
+---
+title: "Biostat 203B Homework 1"
+subtitle: Due Jan 27 @ 11:59PM
+author: Saanchi Shah; UID = 204591578
+format:
+  html:
+    theme: cosmo
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+knitr:
+  opts_chunk: 
+    cache: false    
+    echo: true
+    fig.align: 'center'
+    fig.width: 6
+    fig.height: 4
+    message: FALSE
+---
+
+Display machine information for reproducibility:
+```{r}
+#| eval: false
+sessionInfo()
+```
+
+## Q1. Git/GitHub
+
+**No handwritten homework reports are accepted for this course.** We work with Git and GitHub. Efficient and abundant use of Git, e.g., frequent and well-documented commits, is an important criterion for grading your homework.
+
+1. Apply for the [Student Developer Pack](https://education.github.com/pack) at GitHub using your UCLA email. You'll get GitHub Pro account for free (unlimited public and private repositories).
+
+2. Create a **private** repository `biostat-203b-2023-winter` and add `Hua-Zhou` and `tomokiokuno0528` as your collaborators with write permission.
+
+3. Top directories of the repository should be `hw1`, `hw2`, ... Maintain two branches `master` and `develop`. The `develop` branch will be your main playground, the place where you develop solution (code) to homework problems and write up report. The `master` branch will be your presentation area. Submit your homework files (Quarto file `qmd`, `html` file converted by Quarto, all code and extra data sets to reproduce results) in `main` branch.
+
+4. After each homework due date, course reader and instructor will check out your `master` branch for grading. Tag each of your homework submissions with tag names `hw1`, `hw2`, ... Tagging time will be used as your submission time. That means if you tag your `hw1` submission after deadline, penalty points will be deducted for late submission.
+
+5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
+
+## Q2. Data ethics training
+
+This exercise (and later in this course) uses the [MIMIC-IV data](https://mimic-iv.mit.edu), a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at <https://mimic.mit.edu/docs/gettingstarted/> to (1) complete the CITI `Data or Specimens Only Research` course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. (Hint: The CITI training takes a couple hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)
+
+1) This is a link to [CITI Certificate](https://www.citiprogram.org/verify/?w1305913e-39b4-46d7-8c1c-3d368d0a2560-53778952)
+
+2) This is a link to [CITI Report](https://citiprogram.org/verify/?kc4b3b566-f3cb-422e-8cbf-48e53713387c-53778952)
+
+## Q3. Linux Shell Commands
+
+1. The `~/mimic` folder within the Docker container contains data sets from MIMIC-IV. Refer to the documentation <https://mimic.mit.edu/docs/iv/> for details of data files.  
+```{bash}
+#| eval: false
+ls -l ~/mimic
+```
+Please, do **not** put these data files into Git; they are big. Do **not** copy them into your directory. Do **not** decompress the gz data files. These create unnecessary big files on storage and are not big data friendly practices. Just read from the data folder `~/mimic` directly in following exercises. 
+
+  Use Bash commands to answer following questions.
+
+2. Display the contents in the folders `core`, `hosp`, `icu`. Why are these data files distributed as `.csv.gz` files instead of `.csv` (comma separated values) files? Read the page <https://mimic.mit.edu/docs/iv/> to understand what's in each folder.
+
+```{bash}
+ls -l ~/mimic/core
+ls -l ~/mimic/hosp
+ls -l ~/mimic/icu
+
+```
+
+Answer: The data files are distributed as .csv.gz because these are such huge datasets that it helps with space conservation/reduction. It's also easier to read and write the files and does not need us to decompress the files, thereby, saving us some time in writing additional steps or performing additional unzipping and saving commands/steps.
+
+3. Briefly describe what bash commands `zcat`, `zless`, `zmore`, and `zgrep` do.
+
+Answer: All of these commands are similar to cat, less, more, grep respectively, however, they can handle compressed files in the gzip format which is why we can use these commands for the mimic folder contents as we will not be decompressing the files.
+1. For example, Zcat displays the contents of the admissions.csv.gz file
+2. For example, zless helps us view the contents of the admissions.csv.gz file one page at a time. In class we discussed that less is more powerful than more and my sense is that zless is more powerful than zmore because it loads files faster than more/zmore.
+3. zmore more browses a gzip file screen by screen (only downwards) akin to the more command.
+4. zgrep prints lines that match an expression in the gzip compressed files. The beauty of all of these commands is that one need not decompress the gzip files which saves a lot of space. 
+
+4. What's the output of the following bash script?
+```{bash}
+#| eval: false
+for datafile in ~/mimic/core/*.gz
+do
+  ls -l $datafile
+done
+```
+The output of the provided bash script is as follows:
+Show in New Window
+total 142944
+-rw-rw-r--@ 1 saanchishah  staff  17208966 Mar 15  2021 admissions.csv.gz
+-rw-rw-r--@ 1 saanchishah  staff       606 Jan  4  2022 index.html
+-rw-rw-r--@ 1 saanchishah  staff   2955582 Mar 15  2021 patients.csv.gz
+-rw-rw-r--@ 1 saanchishah  staff  53014503 Mar 15  2021 transfers.csv.gz
+Show in New Window
+total 24
+-rw-rw-r--@  1 saanchishah  staff  2518 Mar 10  2021 LICENSE.txt
+drwxr-xr-x@  5 saanchishah  staff   160 Jan 25 15:06 MIMIC-reduce-chartevents
+-rw-rw-r--@  1 saanchishah  staff  2459 Mar 16  2021 SHA256SUMS.txt
+drwxr-xr-x@  6 saanchishah  staff   192 Jan 25 15:06 core
+drwxr-xr-x@ 21 saanchishah  staff   672 Jan 25 15:06 hosp
+drwxr-xr-x@ 11 saanchishah  staff   352 Jan 25 15:06 icu
+-rw-rw-r--@  1 saanchishah  staff   797 Jan  4  2022 index.html
+Show in New Window
+-rw-rw-r--@ 1 saanchishah  staff  17208966 Mar 15  2021 /Users/saanchishah/mimic/mimic-iv-1.0/core/admissions.csv.gz
+-rw-rw-r--@ 1 saanchishah  staff  2955582 Mar 15  2021 /Users/saanchishah/mimic/mimic-iv-1.0/core/patients.csv.gz
+-rw-rw-r--@ 1 saanchishah  staff  53014503 Mar 15  2021 /Users/saanchishah/mimic/mimic-iv-1.0/core/transfers.csv.gz
+
+
+Display the number of lines in each data file using a similar loop.
+```{bash}
+for datafile in ~/mimic/core/*.gz
+do
+awk 'END { print NR }' $datafile
+done
+```
+
+The 3 datafiles in the core directory (admissions.csv.gz, patients.csv.gz, transfers.csv.gz) have 66156, 8713, 197787 lines respectively. 
+
+```{bash}
+for datafile in ~/mimic/hosp/*.gz
+do
+awk 'END { print NR }' $datafile
+done
+```
+This code chunnk displays the number of lines for each of the 18 files in the 'hosp' directory.
+
+```{bash}
+for datafile in ~/mimic/icu/*.gz
+do
+awk 'END { print NR }' $datafile
+done
+```
+
+This code chunk helps display the number of lines in each datafile in the icu directory. 
+
+5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `sort`, `uniq`, `wc`, and so on.)
+
+```{bash}
+# Displaying the number of first few lines of 'admissions.csv.gz'
+#gunzip -c ~/mimic/core/admissions.csv.gz | head -n 10 # This command works perfectly fine in terminal but not in R
+
+zcat < ~/mimic/core/admissions.csv.gz | head -n 10 # This works perfectly fine on terminal but not as well in R
+
+
+#Display number of rows in the admissions.csv.gz datafiel
+awk 'END { print NR }' ~/mimic/core/admissions.csv.gz
+# There are 66156 rows in this file
+
+#Display number of unique patient ids in this datafile
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F, '{print $1}' | sort | uniq | wc -l
+# Or this also works
+#gunzip -c ~/mimic/core/admissions.csv.gz | awk -F, '{unique[$1]++} END {for (i in unique) print i}' | wc -l
+
+#Answer: There are 256879 unique ids in this file. First, I unzipped the file, then I piped it to filter by the separator "," to look through the first parameter/variable which is subject_id. Then I sorted the ids, used the command uniq to display unique ids and then piped it to get a count of ids that show up only once (in other words ids that are unique).
+
+```
+
+
+6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, and so on.)
+
+```{bash}
+#I first understood the location of each variable/column # in the file to perform the below code.
+
+# Possible values taken by admission_type
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{print $6}' | sort | uniq -c
+
+# Answer: The possible values for admission_type are ambulatory observation, direct emer., diect observation, elective, eu observation, ew emer., observation admit, surgical same day admission, urgent
+
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{print $7}' | sort | uniq -c
+# Answer: admission_location take on the values such as ambulatory surgery transfer, clinic referral, clinic referral, emergency room, information not available, internal transfer to or from psych, pacu, physician referral, procedure site, transfer from hospital, transfer from skilled nursing facility, walk-in/slef referral
+
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{print $9}' | sort | uniq -c
+#Answer: Insurance takes on the value of Medicaid, Medicare and Other
+
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{print $12}' | sort | uniq -c
+#Answer: Ethnicity takes on the values of American Indian/Alaska native, Asian, Black/African American, Hispanic/Latino, Other, Unable to obtain, unknown, white
+
+```
+
+
+## Q4. Who's popular in Price and Prejudice
+
+1. You and your friend just have finished reading *Pride and Prejudice* by Jane Austen. Among the four main characters in the book, Elizabeth, Jane, Lydia, and Darcy, your friend thinks that Darcy was the most mentioned. You, however, are certain it was Elizabeth. Obtain the full text of the novel from <http://www.gutenberg.org/cache/epub/42671/pg42671.txt> and save to your local folder. 
+```{bash}
+#| eval: false
+curl -L -O http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+```
+Explain what `wget -nc` does. Do **not** put this text file `pg42671.txt` in Git. Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
+```{bash}
+#| eval: false
+for char in Elizabeth Darcy Jane Lydia;
+do grep -o -i $char pg42671.txt | wc -w
+echo $char:;
+done
+
+```
+
+2. What's the difference between the following two commands?
+```{bash}
+#| eval: false
+echo 'hello, world' > test1.txt
+```
+and
+```{bash}
+#| eval: false
+echo 'hello, world' >> test2.txt
+```
+
+Answer: While there is a difference between using the '>' and '>>' commands because the former will overwrite the output of the file and the latter will append to the existing output of a file, we get a similar result because these files did not originally exist. Both test1 and test2 appear same because both the files contain the following text 'hello, world' since these were new files created by each of the commands we entered.
+
+3. Using your favorite text editor (e.g., `vi`), type the following and save the file as `middle.sh`:
+
+I used terminal ad entered the following:
+vi middle sh.
+
+Then I copied the below code in the text editor, clicked on the escape button, typed :wq to save and exit out of the editor.
+```{bash eval=FALSE}
+
+#!/bin/sh
+# Select lines from the middle of a file.
+# Usage: bash middle.sh filename end_line num_lines
+head -n "$2" "$1" | tail -n "$3"
+```
+Using `chmod` to make the file executable by the owner, and run
+#code
+#chmod 751 middle.sh
+
+```{bash}
+#| eval: false
+cd ./hw1
+./middle.sh pg42671.txt 20 5
+```
+Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this shell script. Why do we need the first line of the shell script?
+
+Output
+
+Author: Jane Austen
+
+Editor: R. W. (Robert William) Chapman
+
+Explanation of the output: These are command line arguments special characters $1 is the first argument which is the text file. $2 is bash middle.sh script which is applied to the novel and then piped to print tail with lines ending at line 20 and number of lines to tail = 5. The output includes 5 lines from the text, 3 of which are blank spaces.
+
+## Q5. More fun with Linux
+
+Try following commands in Bash and interpret the results: `cal`, `cal 2021`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
+
+```{bash}
+cal
+#Cal shows the calendar for the month January (2023) with today’s date highlighted.
+```
+
+
+```{bash}
+cal 2021 
+# cal 2021 displays the calendar for the year 2021 (all months January - December)
+```
+
+
+```{bash}
+cal 9 1752 
+# This command displays only 19 days under the header “September 1752”, 9 stands for the 9th month and 1752 is the year we want this month’s data to be extracted from. This made no sense to me and I googled the year 1752. It appears that we switched from the Julian calendar to the Gregorian calendar and thus skipped some days.
+```
+
+
+```{bash}
+date
+# This command isplayed the day, date and time (hh:mm:ss) per the time zone PST followed by the year
+```
+
+
+```{bash}
+hostname
+#I do not entirely understand what dhcps do but I checked the unique ID (network in settings for mac)with my IP address and they’re the same so I believe this is a way to identify my device on any network.
+```
+
+
+```{bash}
+arch
+# It displays that my CPU has the arm64 architecture
+```
+
+
+```{bash}
+uname -a
+# I appears that this command lists all the information about my device including kernel version, architecture, unix name, dhcp and so forth.
+```
+
+
+```{bash}
+who am i
+#Displayed my username
+```
+
+
+```{bash}
+Who
+#This command isplays all users logged in to the machine
+```
+
+
+```{bash}
+w
+# This command displays detailed information about all users who are logged in, when they logged in and how long they have been idle
+```
+
+
+```{bash}
+last | head
+# This command last displays all the last logins and piping it with the head command ensures that only the top 10 logins show up
+```
+
+
+
+```{bash}
+echo {con,pre}{sent,fer}{s,ed}
+# This command displays "consents consented confers confered presents presented prefers prefered". This command seems to concatenate words by using the string 'con' which is the first string in the first curly bracket and joins it with the first string of the second bracket followed by the first string of the third bracket = consents. Then 'con' runs through the first string of the second bracket followed by the second string of the third bracket = consented. Next, it loops through the second string of the second bracket, followed by the first string of the third bracket = confers. Next, 'confer' loops through the second string of the third bracket resulting in 'confered'. Then the code uses the second string of the first bracket and follows a similar looping pattern. 
+```
+
+
+```{bash}
+time sleep 5
+#This command specified that linux should pause for 5 seconds before executing the next command
+```
+
+
+```{bash}
+history | tail
+# This command displayed a history of all commands but since we piped it, it only displayed the last 10 commands typed in terminal
+```
+
