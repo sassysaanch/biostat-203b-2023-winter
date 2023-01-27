@@ -27,21 +27,10 @@ sessionInfo()
 
 ## Q1. Git/GitHub
 
-**No handwritten homework reports are accepted for this course.** We work with Git and GitHub. Efficient and abundant use of Git, e.g., frequent and well-documented commits, is an important criterion for grading your homework.
-
-1. Apply for the [Student Developer Pack](https://education.github.com/pack) at GitHub using your UCLA email. You'll get GitHub Pro account for free (unlimited public and private repositories).
-
-2. Create a **private** repository `biostat-203b-2023-winter` and add `Hua-Zhou` and `tomokiokuno0528` as your collaborators with write permission.
-
-3. Top directories of the repository should be `hw1`, `hw2`, ... Maintain two branches `master` and `develop`. The `develop` branch will be your main playground, the place where you develop solution (code) to homework problems and write up report. The `master` branch will be your presentation area. Submit your homework files (Quarto file `qmd`, `html` file converted by Quarto, all code and extra data sets to reproduce results) in `main` branch.
-
-4. After each homework due date, course reader and instructor will check out your `master` branch for grading. Tag each of your homework submissions with tag names `hw1`, `hw2`, ... Tagging time will be used as your submission time. That means if you tag your `hw1` submission after deadline, penalty points will be deducted for late submission.
-
-5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
+There were no questions in this section. This section instructed us to create our repo and store files appropriately.
 
 ## Q2. Data ethics training
 
-This exercise (and later in this course) uses the [MIMIC-IV data](https://mimic-iv.mit.edu), a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at <https://mimic.mit.edu/docs/gettingstarted/> to (1) complete the CITI `Data or Specimens Only Research` course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. (Hint: The CITI training takes a couple hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)
 
 1) This is a link to [CITI Certificate](https://www.citiprogram.org/verify/?w1305913e-39b4-46d7-8c1c-3d368d0a2560-53778952)
 
@@ -54,7 +43,6 @@ This exercise (and later in this course) uses the [MIMIC-IV data](https://mimic-
 #| eval: false
 ls -l ~/mimic
 ```
-Please, do **not** put these data files into Git; they are big. Do **not** copy them into your directory. Do **not** decompress the gz data files. These create unnecessary big files on storage and are not big data friendly practices. Just read from the data folder `~/mimic` directly in following exercises. 
 
   Use Bash commands to answer following questions.
 
@@ -111,28 +99,54 @@ Display the number of lines in each data file using a similar loop.
 ```{bash}
 for datafile in ~/mimic/core/*.gz
 do
-awk 'END { print NR }' $datafile
+gzcat $datafile | wc -l
 done
+
 ```
 
-The 3 datafiles in the core directory (admissions.csv.gz, patients.csv.gz, transfers.csv.gz) have 66156, 8713, 197787 lines respectively. 
+
+
+The 3 datafiles in the core directory (admissions.csv.gz, patients.csv.gz, transfers.csv.gz) have   523741, 382279, 2189536 
 
 ```{bash}
 for datafile in ~/mimic/hosp/*.gz
 do
-awk 'END { print NR }' $datafile
+gzcat $datafile | wc -l
 done
 ```
-This code chunnk displays the number of lines for each of the 18 files in the 'hosp' directory.
+This code chunk displays the number of lines for each of the 18 files in the 'hosp' directory.
 
 ```{bash}
 for datafile in ~/mimic/icu/*.gz
 do
-awk 'END { print NR }' $datafile
+gzcat $datafile | wc -l   
+done
+```
+This code chunk helps display the number of lines in each datafile in the icu directory. 
+
+The below alternate code does a double loop to count the number of lines in all the datafiles in all the folders. 
+
+```{bash}
+for folder in core hosp icu
+do
+echo $folder
+for datafile in ~/mimic/$folder/*.gz
+do
+echo $datafile
+gzcat $datafile | wc -l
+done
 done
 ```
 
-This code chunk helps display the number of lines in each datafile in the icu directory. 
+This is an alternative method to count the number of non-blank rows only. 
+```{bash}
+for datafile in ~/mimic/core/*.gz
+do
+awk 'END { print NR }' $datafile
+done
+
+```
+
 
 5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `sort`, `uniq`, `wc`, and so on.)
 
@@ -141,16 +155,20 @@ Displaying the number of first few lines of 'admissions.csv.gz'
 #gunzip -c ~/mimic/core/admissions.csv.gz | head -n 10 # This command works 
 #perfectly fine in terminal but not in R
 ```{bash}
+echo "The first few lines of admissions.csv.gz are:"
 zcat < ~/mimic/core/admissions.csv.gz | head -n 10 
+
 ```
 This works perfectly fine on terminal but not as well in R
 
 
-#Display number of rows in the admissions.csv.gz datafiel
+#Display number of rows in the admissions.csv.gz datafile
 ```{bash}
-awk 'END { print NR }' ~/mimic/core/admissions.csv.gz
+echo " The number of rows in this file are:" 
+zcat < ~/mimic/core/admissions.csv.gz | wc -l 
+
 ```
-There are 66156 rows in this file
+There are  523741 rows in this file
 
 Display number of unique patient ids in this datafile
 ```{bash}
@@ -170,26 +188,26 @@ First, I understood the location of each variable/column # in the file to perfor
 
 Code to derive the possible values taken by admission_type
 ```{bash}
-gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{print $6}'\
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{if ($6 !="admission_type") print $6}'\
 | sort | uniq -c
 
 ````
 Answer: The possible values for admission_type are ambulatory observation, direct emer., diect observation, elective, eu observation, ew emer., observation admit, surgical same day admission, urgent
 
 ```{bash}
-gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{print $7}'\
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{if($7 !="admission_location") print $7}'\
 | sort | uniq -c
 ```
 Answer: admission_location take on the values such as ambulatory surgery transfer, clinic referral, clinic referral, emergency room, information not available, internal transfer to or from psych, pacu, physician referral, procedure site, transfer from hospital, transfer from skilled nursing facility, walk-in/self referral
 
 ```{bash}
-gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{print $9}'\
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{if ($9 !="insurance")print $9}'\
 | sort | uniq -c
 ```
 Answer: Insurance takes on the value of Medicaid, Medicare and Other
 
 ```{bash}
-gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{print $12}'\
+gunzip -c ~/mimic/core/admissions.csv.gz | awk -F "," '{if ($12 !="ethnicity")print $12}'\
 | sort | uniq -c
 ```
 Answer: Ethnicity takes on the values of American Indian/Alaska native, Asian, Black/African American, Hispanic/Latino, Other, Unable to obtain, unknown, white
@@ -202,12 +220,15 @@ Answer: Ethnicity takes on the values of American Indian/Alaska native, Asian, B
 #| eval: false
 curl -L -O http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 ```
-Explain what `wget -nc` does. Do **not** put this text file `pg42671.txt` in Git. Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
+
+Answer: wget did not work for me so I used, curl. This command helped download a file from a web server.
+
+
 ```{bash}
-#| eval: false
-for char in Elizabeth Darcy Jane Lydia;
-do grep -o -i $char pg42671.txt | wc -w
-echo $char:;
+
+for char in Elizabeth Jane Lydia Darcy;
+do echo $char:;
+grep -o -i $char pg42671.txt | wc -w
 done
 
 ```
@@ -240,7 +261,7 @@ head -n "$2" "$1" | tail -n "$3"
 ```
 Using `chmod` to make the file executable by the owner, and run
 #code
-#chmod 751 middle.sh
+#chmod 700 middle.sh
 
 ```{bash}
 #| eval: false
@@ -255,8 +276,8 @@ Author: Jane Austen
 
 Editor: R. W. (Robert William) Chapman
 
-Explanation of the output: These are command line arguments special characters $1 is the first argument which is the text file. $2 is bash middle.sh script which is applied to the novel and then piped to print tail with lines ending at line 20 and number of lines to tail = 5. The output includes 5 lines from the text, 3 of which are blank spaces.
-
+Explanation of the output: These are command line arguments; special characters $1 is the first argument which is the text file. $2 is 20 which is applied to the novel($1) and then printing the first few lines(head) ending at line 20 and piped to print tail i.e. number of lines to tail = 5. The output includes 5 lines from the text, 3 of which are blank spaces.
+We did not necessarily need to create middle.sh and could have been achieved by simply printing the text and piping with head and tail arguments by specifying the number of lines. 
 ## Q5. More fun with Linux
 
 Try following commands in Bash and interpret the results: `cal`, `cal 2021`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
@@ -284,7 +305,7 @@ This command displays only 19 days under the header “September 1752”, 9 stan
 date
 
 ```
-This command isplayed the day, date and time (hh:mm:ss) per the time zone PST followed by the year.
+This command displayed the day, date and time (hh:mm:ss) per the time zone PST followed by the year.
 
 
 ```{bash}
@@ -310,13 +331,13 @@ I appears that this command lists all the information about my device including 
 ```{bash}
 who am i
 ```
-This command displayed my username.
+This command displayed my username followed by the terminal I am using, today's date and time (24 hour clock)
 
 
 ```{bash}
 Who
 ```
-This command isplays all users logged in to the machine.
+This command displays all users logged in to the machine.
 
 
 
