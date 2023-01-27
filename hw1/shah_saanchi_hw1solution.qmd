@@ -166,7 +166,7 @@ Answer: There are 256879 unique ids in this file. First, I unzipped the file, th
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, and so on.)
 
 
-I first understood the location of each variable/column # in the file to perform the below code.
+First, I understood the location of each variable/column # in the file to perform the below code.
 
 Code to derive the possible values taken by admission_type
 ```{bash}
