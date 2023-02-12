@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 2"
 subtitle: Due Feb 10 @ 11:59PM
-author: Saanchi Shah and UID: 204591578
+author: Saanchi Shah and UID:204591578
 format:
   html:
     theme: cosmo
@@ -22,12 +22,12 @@ knitr:
 
 Display machine information for reproducibility:
 ```{r}
-#| eval: true
+#| eval: false
 sessionInfo()
 
 ```
 
-Load necessary libraries (you can add more as needed).
+
 ```{r setup, include = FALSE, echo = TRUE} 
 
 #rm(list=ls())
@@ -95,25 +95,24 @@ Answer: fread is the fastest for parsing data. In fact, fread literally stands f
 ## Q2. ICU stays
 
 `icustays.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/icu/icustays/>) contains data about Intensive Care Units (ICU) stays. The first 10 lines are
-```{r}
+```{r, warning = FALSE}
 system(
   str_c(
     "zcat < ", 
-    str_c(mimic_path, "/icu/icustays.csv"), 
+    str_c(mimic_path, "/icu/icustays.csv.gz"), 
     " | head"
     ), 
   intern = TRUE
 )
 
 
-#error writing to output: broken pipe.
 ```
 
 1. Import `icustatys.csv.gz` as a tibble `icustays_tble`. 
 
 ```{r}
 
-icustays_tble <- read_csv(file = file.path(input_dir, "icustays.csv")) %>% print(width = Inf)
+icustays_tble <- read_csv(file = file.path(input_dir, "icustays.csv.gz"), show_col_types = FALSE) %>% print(width = Inf)
 
 icustays_tble <- as_tibble(icustays_tble) #confirms it's a tibble
 
@@ -173,7 +172,7 @@ icustays_tble <- icustays_tble %>%
 ## Q3. `admission` data
 
 Information of the patients admitted into hospital is available in `admissions.csv.gz`. See <https://mimic.mit.edu/docs/iv/modules/hosp/admissions/> for details of each field in this file. The first 10 lines are
-```{r}
+```{r, warning = FALSE}
 system(
   str_c(
     "zcat < ", 
@@ -190,7 +189,7 @@ system(
 
 ```{r}
 
-admissions_tble <- read_csv(file = file.path(input_admissions, "admissions.csv.gz")) %>% 
+admissions_tble <- read_csv(file = file.path(input_admissions, "admissions.csv.gz"), show_col_types = FALSE) %>% 
   print(width = Inf)
 
 ```
@@ -356,7 +355,7 @@ Answer: For length of stay, there are some individuals with stays lasting over a
 
 Patient information is available in `patients.csv.gz`. See <https://mimic.mit.edu/docs/iv/modules/hosp/patients/> for details of each field in this file. The first 10 lines are
 
-```{r}
+```{r, warning = FALSE}
 system(
   str_c(
     "zcat < ", 
@@ -424,7 +423,7 @@ patients_tble %>%
 
 `labevents.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/hosp/labevents/>) contains all laboratory measurements for patients. The first 10 lines are
 
-```{r}
+```{r, warning = FALSE}
 system(
   str_c(
     "zcat < ", 
@@ -437,7 +436,7 @@ system(
 `d_labitems.csv.gz` is the dictionary of lab measurements. 
 
 
-```{r}
+```{r, warning = FALSE}
 system(
   str_c(
     "zcat < ", 
@@ -450,7 +449,7 @@ system(
 
 1. Find how many rows are in `labevents.csv.gz`.
 
-```{r}
+```{r, warning = FALSE}
 
 system(
   str_c(
@@ -900,7 +899,8 @@ mimic_icu_cohort %>%
   ggplot(aes(x = thirty_day_mort, fill = first_careunit)) +
   geom_bar() +
   ggtitle("Number of individuals per first ICU unit") +
-  labs("Firtst ICU care unit")
+  xlab("Thirty day mortality")
+  labs(fill = "Firtst ICU care unit")
 
 
 ```
