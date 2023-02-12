@@ -43,7 +43,7 @@ library(scales) #To customize my graphs
 
 MIMIC data location
 ```{r}
-mimic_path <- "~/mimic"
+mimic_path <- ".../mimic"
 
 
 ```
@@ -248,8 +248,6 @@ system(
 ```{r}
 patients_tble <- read_csv(file = file.path(input_admissions, "patients.csv.gz")) %>% print(width = Inf) %>% semi_join(patients_tble, icustays_tble, by = c("subject_id"))
 
-
-
 ```
 
 
@@ -271,13 +269,13 @@ table(patients_tble$gender) #me being lazy,
 It appears that the distribution of males and females is similar even while there is a higher number of females comapred to males in this dataset.
 
 
-
 ```
 
 
 ## Q5. Lab results
 
 `labevents.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/hosp/labevents/>) contains all laboratory measurements for patients. The first 10 lines are
+
 ```{r}
 system(
   str_c(
@@ -288,7 +286,12 @@ system(
   intern = TRUE
 )
 ```
+
+
 `d_labitems.csv.gz` is the dictionary of lab measurements. 
+
+
+
 ```{r}
 system(
   str_c(
@@ -301,6 +304,11 @@ system(
 ```
 
 1. Find how many rows are in `labevents.csv.gz`.
+
+```{r}
+
+```
+
 
 2. We are interested in the lab measurements of creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931). Retrieve a subset of `labevents.csv.gz` only containing these items for the patients in `icustays_tble` as a tibble `labevents_tble`. 
 
