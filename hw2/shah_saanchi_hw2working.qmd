@@ -45,9 +45,11 @@ MIMIC data location + I created some other directory objects as well
 ```{r}
 mimic_path <- "~/mimic"
 
-input_dir <- file.path("/Users/saanchishah/mimic/icu")
-input_admissions <- file.path("/Users/saanchishah/mimic/core") #There are multiple ways to input a filepath - this is an easier and efficient way to do so.
-hosp_dir <- file.path("/Users/saanchishah/mimic/hosp")
+input_dir <- file.path("~/mimic/icu")
+
+input_admissions <- file.path("~/mimic/core") #There are multiple ways to input a filepath - this is an easier and efficient way to do so.
+
+hosp_dir <- file.path("~/mimic/hosp")
 
 ```
 
@@ -73,22 +75,23 @@ Which function is fastest? Is there difference in the (default) parsed data type
 For later questions, we stick to the `read_csv` in tidyverse.
 
 ```{r}
-# Read the data in using read.csv
+# Read the data in using read.csv-----------------------------------------------
 
 system.time(read.csv(file = file.path(input_admissions, "admissions.csv.gz")))
 
-#Read the data in using read_csv
+# Read the data in using read_csv-----------------------------------------------
 system.time(read_csv(file = file.path(input_admissions, "admissions.csv.gz"))) 
-# Q: do we specify column types? should I use show_col_types = FALSE?
-#Q: other than difference in the time are we supposed to mention any other difference?
 
-#Use fread to read in the data
+# Use fread to read in the data-------------------------------------------------
 system.time(fread(file = file.path(input_admissions, "admissions.csv.gz")))
 
 
 ```
 
-Answer: fread is the fastest for parsing data. In fact, fread literally stands for fast and friendly file finagler. read.csv is the slowest option for reading the data in. 
+Answer: 
+1. fread is the fastest for parsing data. In fact, fread literally stands for fast and friendly file finagler. read.csv is the slowest option for reading the data in. 
+
+2. Using read.csv and fread only gave me the time that elapsed while using this function. While using read_csv allowed me to also understand which variables exist in the dataset with their respective class types, number of rows and columns.
 
 
 
@@ -114,7 +117,8 @@ system(
 
 icustays_tble <- read_csv(file = file.path(input_dir, "icustays.csv.gz"), show_col_types = FALSE) %>% print(width = Inf)
 
-icustays_tble <- as_tibble(icustays_tble) #confirms it's a tibble
+# Alternate code
+icustays_tble <- as_tibble(icustays_tble) # Confirms it's a tibble
 
 
 ```
@@ -124,10 +128,12 @@ icustays_tble <- as_tibble(icustays_tble) #confirms it's a tibble
 2. How many unique `subject_id`? Can a `subject_id` have multiple ICU stays? 
 
 ```{r}
-icustays_tble %>% distinct(subject_id) %>% count()
+icustays_tble %>% 
+  distinct(subject_id) %>% 
+  count()
 
-#icustays_tble %>% count(subject_id) %>% filter(n==1) %>% count()
-#How many had one icu stay only? - just for myself
+# icustays_tble %>% count(subject_id) %>% filter(n==1) %>% count()
+# the above code will answer "How many had one icu stay only?" - just for myself
 
 ```
 There are 53150 unique subject ids. Yes, a subjct can have multiple ICU stays. In fact, there are 171080 individuals with just one stay and the rest had multiple icu stays.
@@ -147,8 +153,10 @@ icustays_tble %>%
   scale_x_continuous(breaks=seq(1,37,by=2)) + 
   ggtitle("Distribution of number of ICU stays")
 
-#grouped_icu <- icustays_tble %>% group_by(subject_id) %>% summarise(stays = n())
-#table(grouped_icu$stays) - I did this to understand the range of icu stays
+# grouped_icu <- icustays_tble %>% 
+# group_by(subject_id) %>% 
+# summarise(stays = n())
+# table(grouped_icu$stays) - I did this to understand the range of icu stays
 ```
 
 
@@ -161,9 +169,8 @@ icustays_tble <- icustays_tble %>%
   slice_head(n = 1) 
 
 # I tried a different way to do this below as well
-#new_icu1 <- icustays_tble %>% group_by(subject_id) %>% filter(intime == min(intime))
-#intime
-
+# new_icu1 <- icustays_tble %>% group_by(subject_id) %>% filter(intime == min(intime))
+# intime
 
 ```
 
@@ -202,10 +209,11 @@ This would require a type of join to ensure that observations with the same subj
 ```{r}
 
 
-admissions_tble <- semi_join(admissions_tble, icustays_tble, by = c("subject_id", "hadm_id"))
+admissions_tble <- semi_join(admissions_tble, icustays_tble, by = c("subject_id", "hadm_id")) %>% 
+  print(width = Inf)
 
-#this makes sense because admissions_tble had 523740 distinct ids and after the semi join I expected there to 
-#be fewer observations and I see 69211 observations now.
+#this makes sense because admissions_tble had 53150 distinct ids and after the semi join I expected there to 
+#be fewer observations and I see 53150 observations now.
 
 
 ```
@@ -224,11 +232,11 @@ admissions_tble <- semi_join(admissions_tble, icustays_tble, by = c("subject_id"
 To create these graphs, we need to first manipulate some variables to extract specific variables from original variables  
 Step 1: Data manipulation    
 ```{r}
-#Investigating the variable admittime--------------------------------
+# Investigating the variable admittime------------------------------------------
 typeof(admissions_tble$admittime)
 class(admissions_tble$admittime)
 
-#Data manipulation --------------------------------------------------
+# Data manipulation ------------------------------------------------------------
 
 new_admissions = admissions_tble %>% 
   mutate(
@@ -245,8 +253,8 @@ new_admissions = admissions_tble %>%
 
 
 
-# Plot 1 -------------------------------------------------------------
-#Plotting the number of ICU stays by year
+# Plot 1 -----------------------------------------------------------------------
+# Plotting the number of ICU stays by year
 new_admissions %>% 
   group_by(year) %>% 
   summarize(stays = n()) %>% 
@@ -256,7 +264,7 @@ new_admissions %>%
   scale_x_continuous(breaks=seq(2110, 2211, by = 10)) + 
   ggtitle("Number of ICU stays per year")
 
-# Plot 2 -------------------------------------------------------------
+# Plot 2 -----------------------------------------------------------------------
 # Number of ICU stays by month
 month_admit <- new_admissions %>% 
   group_by(month) %>% 
@@ -270,8 +278,8 @@ ggplot(data = month_admit, mapping = aes(x = month, y = stays)) +
   ggtitle("Number of ICU stays per month")
 
 
-# Plot 3 -------------------------------------------------------------
-#Number of ICU stays by weekday
+# Plot 3 -----------------------------------------------------------------------
+# Number of ICU stays by weekday
 new_admissions %>% 
   group_by(week_day) %>% 
   summarize(stays = n()) %>% 
@@ -282,8 +290,8 @@ new_admissions %>%
   ggtitle("Number of ICU stays per weekday")
   
   
-# Plot 4 -------------------------------------------------------------
-#graph of admission hour, 
+# Plot 4 -----------------------------------------------------------------------
+# graph of admission hour, 
 new_admissions %>% 
     group_by(hour) %>% 
     summarise(stays = n()) %>% 
@@ -297,8 +305,8 @@ new_admissions %>%
 The most number of stays occurred at midnight. 7 AM is another outlier in this S-shaped curved. It appears that there is a sudden rise in ICU admissions at midnight after which the admissions decline and gradually increase after 9 AM and plateau 4 PM onwards.
 
 ```{r}
-# Plot 5 -------------------------------------------------------------
-#admission minute
+# Plot 5 -----------------------------------------------------------------------
+# admission minute
 new_admissions %>% 
     group_by(minute) %>% 
     summarise(stays = n()) %>% 
@@ -314,8 +322,8 @@ new_admissions %>%
   
   
 ```{r}  
-# Plot 6 -------------------------------------------------------------
-#admission monthday
+# Plot 6 -----------------------------------------------------------------------
+# admission monthday
 new_admissions %>% 
     group_by(monthday) %>% 
     summarize(stays = n()) %>% 
@@ -332,7 +340,7 @@ new_admissions %>%
 
 Length of stay
 ```{r}
-#Plot 7 ------------------------------------------------------------
+# Plot 7 -----------------------------------------------------------------------
 
 new_admissions %>% 
   mutate(los_new = round(los_d, 1)) %>% 
@@ -345,7 +353,7 @@ new_admissions %>%
   ylab("Length of stay in the ICU") + 
   ggtitle("Length of hospital stay")
 
-
+# Understanding descriptive stats for los_d
 summary(new_admissions$los_d)
 ```
 Answer: For length of stay, there are some individuals with stays lasting over a year but most people did not have such long visits. The ones with frequent visits have shorter stays while the ones with fewer visits stayed longer. I think it may have been better to visualize the length of stay with other variables to observe differences. Without knowing the demographics or the reason for admission it is hard to stay why some were in the ICU for so long other than guessing that perhaps they were in a coma for instance.
@@ -403,7 +411,7 @@ patients_tble %>%
 
 ```{r}
 class(patients_tble$gender)
-table(patients_tble$gender) #me being lazy in summarizing these two variables
+table(patients_tble$gender) # me being lazy in summarizing these two variables
 ```
 
 It appears that the distribution of males and females is similar even while there is a higher number of females compared to males in this dataset. The mean anchor age is more for females compared to males.
@@ -518,16 +526,16 @@ labevents_tble <-labevents_tble %>%
 ```
 
 ```{r}
-library(gridExtra)
+library(gridExtra) # loading library for grid arrange
 
-#Numerics for lab measurements -------------------------------------------------
+# Numerics for lab measurements ------------------------------------------------
 labevents_tble %>% 
   select(-subject_id) %>% 
   summary(everything())
 
 
-#Plot through visuals ----------------------------------------------------------
-#Create a vector list of measurements
+# Plot through visuals ---------------------------------------------------------
+# Create a vector list of measurements
 
 labs <- c("Bicarbonate", 
           "Chloride", 
@@ -539,8 +547,8 @@ labs <- c("Bicarbonate",
           "Hematocrit"
           )
 
-#I will first create a function to read in lab measurements through ggplot 
-#Next, I will use the lapply function to iterate the plots for each lab event.
+# I will first create a function to read in lab measurements through ggplot 
+# Next, I will use the lapply function to iterate the plots for each lab event.
 
 plots <- function(labevents_tble, measurement) {
   ggplot(labevents_tble, aes(y = get(measurement))) +
@@ -608,7 +616,9 @@ chartevents_tble <- read_csv("/Users/saanchishah/mimic/icu/chartevents_filtered_
 
 ```{r}
 
-#First do a left join followed by grouping and filtering the charttimes in such a way that charttimes fall between 
+# First do a left join followed by grouping and filtering the charttimes in such
+# a way that charttimes fall between intime and outtime
+
 chartevents_tble <- chartevents_tble %>%
   left_join(icustays_tble, by = "subject_id") %>% 
   group_by(subject_id) %>% 
@@ -630,7 +640,7 @@ chartevents_tble <- chartevents_tble %>%
 
 
 ```{r}
-#Numerics for chart measurements -------------------------------------------------
+# Numerics for chart measurements ----------------------------------------------
 chartevents_tble %>% 
   select(-subject_id) %>% 
   summary(everything())
@@ -638,7 +648,7 @@ chartevents_tble %>%
 
 ```{r}
 
-#Renaming variables ------------------------------------------------------------
+# Renaming variables -----------------------------------------------------------
 
 
 chartevents_tble <- chartevents_tble %>%
@@ -650,8 +660,8 @@ chartevents_tble <- chartevents_tble %>%
    Resp_rate = '220210'
   )
 
-#Plot through visuals ----------------------------------------------------------
-#Create a vector list of measurements
+# Plot through visuals ---------------------------------------------------------
+# Create a vector list of measurements
 
 charts <- c("Heart_rate",
           "Diastolic_BP",
@@ -660,8 +670,8 @@ charts <- c("Heart_rate",
           "Resp_rate"
           )
 
-#I will first create a function to read in lab measurements through ggplot 
-#Next, I will use the lapply function to iterate the plots for each lab event.
+# I will first create a function to read in lab measurements through ggplot 
+# Next, I will use the lapply function to iterate the plots for each lab event.
 
 plots_c <- function(chartevents_tble, measurement) {
   ggplot(chartevents_tble, aes(y = get(measurement))) +
@@ -704,7 +714,7 @@ mutate(mort = difftime(admittime, dod, unit = 'days'),
 
 ```{r}
 
-#install.packages("purrr")
+# install.packages("purrr")
 library(purrr)
   
 mimic_icu_cohort <- list(
@@ -733,17 +743,17 @@ Summarize following information using appropriate numerics or graphs.
 - `thirty_day_mort` vs demographic variables (ethnicity, language, insurance, marital_status, gender, age at hospital admission)
 
 ```{r}
-#Since we can use numerics or graphics, I'll try to do either or but not both. 
+# Since we can use numerics or graphics, I'll try to do either or but not both. 
 
 library(forcats)
 library(labelled)
 
-#Plot 1 Ethnicity --------------------------------------------------------------
+# Plot 1 Ethnicity --------------------------------------------------------------
 
 mimic_icu_cohort %>% 
-  drop_na(thirty_day_mort, ethnicity) %>% #Drop NAs because it gave me a third column
-  #because it gave me an NA bar as well otherwise
-  group_by(thirty_day_mort, ethnicity) %>% #To compute a proportion, first need to 
+  drop_na(thirty_day_mort, ethnicity) %>% # Drop NAs 
+  # because it gave me an NA bar as well otherwise
+  group_by(thirty_day_mort, ethnicity) %>% # To compute a proportion, first need 
   # to create a new variable to capture the values for plotting
   summarize(count = n()) %>% 
   mutate(proportion = count/sum(count)) %>% 
@@ -752,7 +762,8 @@ mimic_icu_cohort %>%
   scale_y_continuous(labels = scales::percent_format(), limits = c(0, 1)) +
   xlab("Mortality within thirty days") +
   ylab("Proportion of ethnic groups") +
-  ggtitle("Proportion of number of individuals with mortality within 30 days by ethnic groups")
+  ggtitle("Proportion of number of individuals with mortality within 30 days by 
+          ethnic groups")
   
 
 #2 Language--------------------------------------------------------------------
@@ -774,7 +785,7 @@ mimic_icu_cohort %>%
 #4 marital_status in percentages-----------------------------------------------
 round(prop.table(table(
   mimic_icu_cohort$marital_status, mimic_icu_cohort$thirty_day_mort), 2)*100, 2)
-#If I take out *100 it will give a proportion
+# If I take out *100 it will give a proportion
 
 #5 gender-----------------------------------------------------------------------
 round(prop.table(table(
@@ -796,52 +807,52 @@ mimic_icu_cohort %>%
 
 - `thirty_day_mort` vs first lab measurements
 ```{r}
-#bicarb
+# bicarbonate
 p1 <- mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = Bicarbonate)) +
   geom_boxplot()
 
-#chloride  
+# chloride  
 p2 <- mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = Chloride)) +
   geom_boxplot()
 
-#creatinine
+# creatinine
 p3 <-  mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = Creatinine)) +
   geom_boxplot()
 
 
-#hematocrit
+# hematocrit
 p4 <-  mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = Hematocrit)) +
   geom_boxplot()
 
-#glucose
+# glucose
 p5 <-  mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = Hematocrit)) +
   geom_boxplot()
 
 
-#wbc
+# wbc
 p6 <-  mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = WBC)) +
   geom_boxplot()
 
-#sodium
+# sodium
 
 p7 <-  mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = Sodium)) +
   geom_boxplot()
 
-#potassium
+# potassium
 p8 <-  mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = Potassium)) +
@@ -853,7 +864,7 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 4)
 ```
 
 - `thirty_day_mort` vs first vital measurements
-Heart_rate 
+   Heart_rate 
    Diastolic_BP
    Systolic_BP
    Temperature 
@@ -864,7 +875,7 @@ Heart_rate
 c1 <- mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, y = Diastolic_BP)) +
-  geom_boxplot(outlier.shape = NA, size=1) + #removed outliers so mean changed
+  geom_boxplot(outlier.shape = NA, size=1) + # removed outliers so mean changed
   scale_y_continuous(limits = c(0, 200))
    
 c2 <- mimic_icu_cohort %>% 
