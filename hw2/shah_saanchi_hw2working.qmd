@@ -30,15 +30,15 @@ sessionInfo()
 
 ```{r setup, include = FALSE, echo = TRUE} 
 
-#rm(list=ls())
+# rm(list=ls())
 library(data.table)
 library(lubridate)
-#install.packages("R.utils")
+# install.packages("R.utils")
 library(R.utils)
 library(tidyverse)
 
-#install.packages("scales")
-library(scales) #To customize my graphs
+# install.packages("scales")
+library(scales) # To customize my graphs
 ```
 
 MIMIC data location + I created some other directory objects as well
@@ -47,7 +47,7 @@ mimic_path <- "~/mimic"
 
 input_dir <- file.path("~/mimic/icu")
 
-input_admissions <- file.path("~/mimic/core") #There are multiple ways to input a filepath - this is an easier and efficient way to do so.
+input_admissions <- file.path("~/mimic/core") # There are multiple ways to input a filepath - this is an easier and efficient way to do so.
 
 hosp_dir <- file.path("~/mimic/hosp")
 
@@ -59,7 +59,7 @@ Display the contents of MIMIC data folder.
 
 
 ```{r}
-system(str_c("ls -l ", mimic_path, "/"), intern = TRUE) #even without the forward slash, this code ran. 
+system(str_c("ls -l ", mimic_path, "/"), intern = TRUE) # even without the forward slash, this code ran. 
 system(str_c("ls -l ", mimic_path, "/core"), intern = TRUE)
 system(str_c("ls -l ", mimic_path, "/hosp"), intern = TRUE)
 system(str_c("ls -l ", mimic_path, "/icu"), intern = TRUE)
@@ -85,13 +85,15 @@ system.time(read_csv(file = file.path(input_admissions, "admissions.csv.gz")))
 # Use fread to read in the data-------------------------------------------------
 system.time(fread(file = file.path(input_admissions, "admissions.csv.gz")))
 
-
+# To see how the parsed data types differ I wrapped the code within 'str' like so
+# str(read.csv(file = file.path(input_admissions, "admissions.csv.gz")))
+# I repeated that for all 3 options but did not want to take up extra space 
 ```
 
 Answer: 
 1. fread is the fastest for parsing data. In fact, fread literally stands for fast and friendly file finagler. read.csv is the slowest option for reading the data in. 
 
-2. Using read.csv and fread only gave me the time that elapsed while using this function. While using read_csv allowed me to also understand which variables exist in the dataset with their respective class types, number of rows and columns.
+2. Using read.csv read in dates as characters while read_csv and fread read the dates as POSIXct. Also, subject_id and hadm_id were read in as numeric by read_csv but as integers by read.csv and fread. 
 
 
 
@@ -114,6 +116,8 @@ system(
 1. Import `icustatys.csv.gz` as a tibble `icustays_tble`. 
 
 ```{r}
+# input_dir <- file.path("~/mimic/icu")
+# Run the above code if you did not run an earlier chunk
 
 icustays_tble <- read_csv(file = file.path(input_dir, "icustays.csv.gz"), show_col_types = FALSE) %>% print(width = Inf)
 
@@ -207,13 +211,15 @@ admissions_tble <- read_csv(file = file.path(input_admissions, "admissions.csv.g
 This would require a type of join to ensure that observations with the same subject_id and hadmi_id are preserved/filtered by. I understand this question to mean that if subject id and hadmi id are present in icustays_tble then we can keep those observations in admissions. Let's attempt to do that using a semi join.
 
 ```{r}
-
+# input_admissions <- file.path("~/mimic/core")
+# run this above code if you did not earlier
 
 admissions_tble <- semi_join(admissions_tble, icustays_tble, by = c("subject_id", "hadm_id")) %>% 
   print(width = Inf)
 
-#this makes sense because admissions_tble had 53150 distinct ids and after the semi join I expected there to 
-#be fewer observations and I see 53150 observations now.
+# this makes sense because admissions_tble had 53150 distinct ids and 
+# after the semi join I expected there to 
+# be fewer observations and I see 53150 observations now.
 
 
 ```
@@ -379,9 +385,13 @@ system(
 
 
 ```{r}
+# input_admissions <- file.path("~/mimic/core")
+# run this code if you did not earlier
+
 patients_tble <- read_csv(file = file.path(input_admissions, "patients.csv.gz")) %>% 
   print(width = Inf) %>% 
-  semi_join(icustays_tble, by = c("subject_id"))
+  semi_join(icustays_tble, by = c("subject_id")) %>% 
+  print(width = Inf)
 
 ```
 
@@ -421,7 +431,8 @@ It appears that the distribution of males and females is similar even while ther
 patients_tble %>% 
   group_by(subject_id) %>% 
   ggplot(aes(x = gender, y = anchor_age, fill = gender)) + 
-  geom_boxplot()
+  geom_boxplot() +
+  ggtitle("Distribution of anchor age by gender")
   
 ```
 
@@ -477,11 +488,15 @@ system(
 
 ```{r}
 
+# hosp_dir <- file.path("~/mimic/hosp")
+# Use the above code if you did not run an earlier chunk for file paths
+
 labevents_tble <- read_csv(
   file = file.path(hosp_dir, "labevents.csv.gz"), 
   col_select = c(subject_id, hadm_id, itemid, charttime, valuenum)) %>% 
   filter(itemid %in% c(50912 , 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>% 
-  semi_join(icustays_tble, by = "subject_id") 
+  semi_join(icustays_tble, by = "subject_id") %>% 
+  print(width = Inf)
 
 
 ```
@@ -500,9 +515,10 @@ labevents_tble <- labevents_tble %>%
   arrange(charttime, by_group = TRUE) %>% 
   slice_head(n = 1) %>%
   ungroup() %>% 
+  select(-c(intime, outtime, charttime, hadm_id.x, hadm_id.y, first_careunit, last_careunit, los, stay_id)) %>% 
   pivot_wider(names_from = itemid,
               values_from = valuenum) %>% 
-  select(-c(intime, outtime, charttime, hadm_id.x, hadm_id.y, first_careunit, last_careunit, los, stay_id))
+  print(width = Inf)
 
 ```
 
@@ -525,7 +541,7 @@ labevents_tble <-labevents_tble %>%
 
 ```
 
-```{r}
+```{r, warning = FALSE}
 library(gridExtra) # loading library for grid arrange
 
 # Numerics for lab measurements ------------------------------------------------
@@ -604,11 +620,12 @@ system(
 
 ```{r}
 
-chartevents_tble <- read_csv("/Users/saanchishah/mimic/icu/chartevents_filtered_itemid.csv.gz", 
+chartevents_tble <- read_csv("~/mimic/icu/chartevents_filtered_itemid.csv.gz", 
   col_select = c(subject_id, itemid,  valuenum, charttime),
   col_types = NULL) %>% 
   filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>% 
-  semi_join(icustays_tble, by = "subject_id") 
+  semi_join(icustays_tble, by = "subject_id") %>% 
+  print (width = Inf)
 ```
 
 
@@ -627,10 +644,11 @@ chartevents_tble <- chartevents_tble %>%
   arrange(charttime, .by_group = TRUE) %>% 
   slice_head(n = 1) %>% 
   ungroup() %>% 
+  select(-c(intime, outtime, charttime, hadm_id, hadm_id, first_careunit, last_careunit, los, stay_id)) %>% 
   pivot_wider(names_from = itemid,
               values_from = valuenum) %>% 
-  select(-c(intime, outtime, charttime, hadm_id, hadm_id, first_careunit, last_careunit, los, stay_id))
-
+  print(width = Inf)
+  
 
 ```
 
@@ -724,12 +742,16 @@ mimic_icu_cohort <- list(
   chartevents_tble) %>% 
   reduce(left_join, by = "subject_id") %>% 
 mutate(age = year(admittime) - anchor_year + anchor_age) %>% 
+  # Create a new variable to calculate age because of date shifting
 filter(age > 18) %>% 
 mutate(
      mort = difftime(dod, admittime, unit = 'days'),
-     thirty_day_mort = if_else(mort > 30, 1, 0),
+     thirty_day_mort = if_else(mort < 30, 1, 0),
      thirty_day_mort = recode(thirty_day_mort, '1' = "True", '0' = "False")
      )
+
+# Let's see how many are True and how many are false in the new variable
+table(mimic_icu_cohort$thirty_day_mort)
      
  
 ```
@@ -807,6 +829,8 @@ mimic_icu_cohort %>%
 
 - `thirty_day_mort` vs first lab measurements
 ```{r}
+# Creating multiple individual plots for labs and then arranging them
+
 # bicarbonate
 p1 <- mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
@@ -871,6 +895,8 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 4)
    Resp_rate 
 
 ```{r}
+
+# Creating multiple plots and then arranging them for better visualisation
   
 c1 <- mimic_icu_cohort %>% 
   drop_na(thirty_day_mort) %>% 
@@ -905,6 +931,8 @@ grid.arrange(c1, c2, c3, c4, c5, ncol = 3)
 
 - `thirty_day_mort` vs first ICU unit
 ```{r}
+# I am now plotting mortality vs their first ICU unit
+
 mimic_icu_cohort %>%
   drop_na(thirty_day_mort) %>% 
   ggplot(aes(x = thirty_day_mort, fill = first_careunit)) +
