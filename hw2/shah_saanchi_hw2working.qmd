@@ -828,7 +828,7 @@ mimic_icu_cohort %>%
 
 
 - `thirty_day_mort` vs first lab measurements
-```{r}
+```{r, warning = FALSE}
 # Creating multiple individual plots for labs and then arranging them
 
 # bicarbonate
@@ -894,7 +894,7 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, ncol = 4)
    Temperature 
    Resp_rate 
 
-```{r}
+```{r, warning = FALSE}
 
 # Creating multiple plots and then arranging them for better visualisation
   
