@@ -1,5 +1,7 @@
 ```{r}
 library(shiny)
+library(dplyr)
+library(ggplot2)
 
 # loading the data
 
@@ -10,11 +12,12 @@ head(icu_cohort, n = 5)
 # modifying it so it makes sense for developing the app
 
 icu_cohort_new <- icu_cohort %>% 
-  mutate(thirty_day_mortality = if_else(duration < 30, 1, 0)) %>% 
+  mutate(thirty_day_mortality = if_else(duration < 30, 1, 0),
+         thirty_mort = if_else(duration <30, "Yes", "No")) %>% 
   select(subject_id, stay_id, first_careunit, last_careunit, los, admission_type, 
          insurance, gender, ethnicity, Sodium, Chloride, WBC, Hematocrit, Glucose, 
          Bicarbonate, Creatinine, Potassium, age, thirty_day_mortality, Systolic_BP, 
-         Diastolic_BP, Resp_rate, Heart_rate, Temperature)
+         Diastolic_BP, Resp_rate, Heart_rate, Temperature, thirty_mort)
 
 head(icu_cohort_new, n = 5)
 ```
@@ -25,21 +28,17 @@ head(icu_cohort_new, n = 5)
 
 ```{r}
 
-# test out plots for some other variables
-library(dplyr)
-
-
 ui <- fluidPage(
-
+  
   # App title ----
-  titlePanel("Saanchi's icu cohort"),
-
+  titlePanel("Generating plots for variables in the ICU cohort"),
+  
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
-
+    
     # Sidebar panel for inputs ----
     sidebarPanel(
-
+      
       # Input: Selector for variable to plot against mpg ----
       selectInput("variable", "Variable:",
                   choices = c("Hematocrit" ,
@@ -60,55 +59,83 @@ ui <- fluidPage(
                               "Heart_rate",
                               "Temperature",
                               "admission_type")),
- 
-
+      
+      
       # Input: Checkbox for whether outliers should be included ----
       checkboxInput("outliers", "Show outliers", TRUE)
-
+      
     ),
-
+    
     # Main panel for displaying outputs ----
     mainPanel(
-
+      
       # Output: Formatted text for caption ----
       h3(textOutput("caption")),
-
-      # Output: Plot of the requested variable against mpg ----
-      plotOutput("mortPlot")
-
+      
+      # Output: Plot of the requested variable against 30 day mort ----
+      plotOutput("mortPlot"),
+      
+      # Output: Plot of demographic vars---
+      plotOutput("Plotnew")
+      
     )
   )
 )
-server <- function(input, output) {
 
+server <- function(input, output) {
+  
   # Compute the formula text ----
   # This is in a reactive expression since it is shared by the
   # output$caption and output$mpgPlot functions
   formulaText <- reactive({
     paste("Thirty day mortality ~", input$variable)
   })
-
+  
+  datasetInput <- reactive({
+    switch(input$variable,
+           Hematocrit = icu_cohort_new$Hematocrit,
+           Chloride = icu_cohort_new$Chloride,
+           Sodium = icu_cohort_new$Sodium,
+           Potassium = icu_cohort_new$Potassium,
+           WBC = icu_cohort_new$WBC,
+           Glucose = icu_cohort_new$Glucose,
+           Creatinine =icu_cohort_new$Creatinine,
+           Bicarbonate = icu_cohort_new$Bicarbonate,
+           Gender = icu_cohort_new$gender,
+           insurance = icu_cohort_new$insurance,
+           ethnicity = icu_cohort_new$ethnicity,
+           age = icu_cohort_new$age,
+           Systolic_BP = icu_cohort_new$Systolic_BP,
+           Diastolic_BP = icu_cohort_new$Diastolic_BP,
+           Resp_rate = icu_cohort_new$Resp_rate,
+           Heart_rate = icu_cohort_new$Heart_rate,
+           Temperature = icu_cohort_new$Temperature,
+           admission_type = icu_cohort_new$admission_type
+    )
+  })
+  
   # Return the formula text for printing as a caption ----
   output$caption <- renderText({
     formulaText()
   })
-
   
 
-  # Generate a plot of the requested variable against thirty_day_mortality ----
-  # and only exclude outliers if requested
-  output$mortPlot <- renderPlot({
-  
-#  output$mortPlot <- renderPlot({
+
+ output$mortPlot <- renderPlot({
+ if(is.numeric(datasetInput())){
   ggplot(data = icu_cohort_new) +
-  geom_point(mapping = aes_string(x = "thirty_day_mortality", y = input$variable))
-  })
+    geom_point(mapping = aes_string(x = "thirty_day_mortality", y = input$variable))
+} else {
+  ggplot(data = icu_cohort_new) +
+    geom_bar(mapping = aes_string(x = input$variable, fill = "thirty_mort")) +
+    labs(fill = "Thirty day mortality")
+}
+})
+
+
 }
 
-
-
 shinyApp(ui, server)
-
 ```
 
 
