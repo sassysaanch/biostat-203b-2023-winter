@@ -190,7 +190,14 @@ labevents_tble <- labevents_tble %>%
   group_by(subject_id, itemid) %>% 
   summarise_all(min) %>%
   ungroup() %>% 
-  select(-c(intime, outtime, charttime, hadm_id, first_careunit, last_careunit, los, stay_id)) %>% 
+  select(-c(intime, 
+            outtime, 
+            charttime, 
+            hadm_id, 
+            first_careunit, 
+            last_careunit, 
+            los, 
+            stay_id)) %>% 
   pivot_wider(names_from = itemid,
               values_from = valuenum,
               names_prefix = "new") %>% 

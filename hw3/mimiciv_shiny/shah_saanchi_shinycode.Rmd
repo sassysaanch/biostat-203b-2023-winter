@@ -14,10 +14,31 @@ head(icu_cohort, n = 5)
 icu_cohort_new <- icu_cohort %>% 
   mutate(thirty_day_mortality = if_else(duration < 30, 1, 0),
          thirty_mort = if_else(duration <30, "Yes", "No")) %>% 
-  select(subject_id, stay_id, first_careunit, last_careunit, los, admission_type, 
-         insurance, gender, ethnicity, Sodium, Chloride, WBC, Hematocrit, Glucose, 
-         Bicarbonate, Creatinine, Potassium, age, thirty_day_mortality, Systolic_BP, 
-         Diastolic_BP, Resp_rate, Heart_rate, Temperature, thirty_mort)
+  select(subject_id, 
+         stay_id, 
+         first_careunit, 
+         last_careunit, 
+         los, 
+         admission_type, 
+         insurance, 
+         gender, 
+         ethnicity, 
+         Sodium, 
+         Chloride, 
+         WBC, 
+         Hematocrit, 
+         Glucose, 
+         Bicarbonate, 
+         Creatinine, 
+         Potassium, 
+         age, 
+         thirty_day_mortality, 
+         Systolic_BP, 
+         Diastolic_BP, 
+         Resp_rate, 
+         Heart_rate, 
+         Temperature, 
+         thirty_mort)
 
 head(icu_cohort_new, n = 5)
 ```
@@ -39,7 +60,7 @@ ui <- fluidPage(
     # Sidebar panel for inputs ----
     sidebarPanel(
       
-      # Input: Selector for variable to plot against mpg ----
+      # Input: Selector for variable to plot against thirty_day_mort ----
       selectInput("variable", "Variable:",
                   choices = c("Hematocrit" ,
                               "Chloride" ,
@@ -87,6 +108,7 @@ server <- function(input, output) {
   # Compute the formula text ----
   # This is in a reactive expression since it is shared by the
   # output$caption and output$mpgPlot functions
+  
   formulaText <- reactive({
     paste("Thirty day mortality ~", input$variable)
   })
@@ -99,7 +121,7 @@ server <- function(input, output) {
            Potassium = icu_cohort_new$Potassium,
            WBC = icu_cohort_new$WBC,
            Glucose = icu_cohort_new$Glucose,
-           Creatinine =icu_cohort_new$Creatinine,
+           Creatinine = icu_cohort_new$Creatinine,
            Bicarbonate = icu_cohort_new$Bicarbonate,
            Gender = icu_cohort_new$gender,
            insurance = icu_cohort_new$insurance,
@@ -111,29 +133,27 @@ server <- function(input, output) {
            Heart_rate = icu_cohort_new$Heart_rate,
            Temperature = icu_cohort_new$Temperature,
            admission_type = icu_cohort_new$admission_type
-    )
-  })
+           )
+    })
   
   # Return the formula text for printing as a caption ----
   output$caption <- renderText({
     formulaText()
   })
   
-
-
  output$mortPlot <- renderPlot({
- if(is.numeric(datasetInput())){
+ if (is.numeric(datasetInput())) {
   ggplot(data = icu_cohort_new) +
     geom_point(mapping = aes_string(x = "thirty_day_mortality", y = input$variable))
 } else {
   ggplot(data = icu_cohort_new) +
     geom_bar(mapping = aes_string(x = input$variable, fill = "thirty_mort")) +
     labs(fill = "Thirty day mortality")
-}
-})
+  }
+ })
+ }
 
-
-}
+# run the app
 
 shinyApp(ui, server)
 ```

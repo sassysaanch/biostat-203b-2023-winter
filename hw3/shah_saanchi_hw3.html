@@ -191,7 +191,7 @@ loaded via a namespace (and not attached):
   ..@ loadable.extensions: logi TRUE
   ..@ flags              : int 70
   ..@ vfs                : chr ""
-  ..@ ref                :&lt;environment: 0x10a23f778&gt; 
+  ..@ ref                :&lt;environment: 0x11f193970&gt; 
   ..@ bigint             : chr "integer64"
   ..@ extended_types     : logi FALSE</code></pre>
 </div>
@@ -645,20 +645,27 @@ ON (`LHS`.`subject_id` = `RHS`.`subject_id` AND `LHS`.`intime` = `RHS`.`intime`)
 <span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, itemid) <span class="sc">%&gt;%</span> </span>
 <span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(min) <span class="sc">%&gt;%</span></span>
 <span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(intime, outtime, charttime, hadm_id, first_careunit, last_careunit, los, stay_id)) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid,</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> valuenum,</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_prefix =</span> <span class="st">"new"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Creatinine =</span> <span class="st">'new50912'</span>,</span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">Potassium =</span> <span class="st">'new50971'</span>,</span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">Sodium =</span> <span class="st">'new50983'</span>,</span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>         <span class="at">Chloride =</span> <span class="st">'new50902'</span>,</span>
-<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">Bicarbonate =</span> <span class="st">'new50882'</span>,</span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">Hematocrit =</span> <span class="st">'new51221'</span>,</span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">WBC =</span> <span class="st">'new51301'</span>,</span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">Glucose =</span> <span class="st">'new50931'</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>  show_query <span class="sc">%&gt;%</span> </span>
-<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(intime, </span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>            outtime, </span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>            charttime, </span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>            hadm_id, </span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>            first_careunit, </span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>            last_careunit, </span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>            los, </span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>            stay_id)) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid,</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> valuenum,</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_prefix =</span> <span class="st">"new"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Creatinine =</span> <span class="st">'new50912'</span>,</span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>         <span class="at">Potassium =</span> <span class="st">'new50971'</span>,</span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>         <span class="at">Sodium =</span> <span class="st">'new50983'</span>,</span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>         <span class="at">Chloride =</span> <span class="st">'new50902'</span>,</span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>         <span class="at">Bicarbonate =</span> <span class="st">'new50882'</span>,</span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>         <span class="at">Hematocrit =</span> <span class="st">'new51221'</span>,</span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">WBC =</span> <span class="st">'new51301'</span>,</span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>         <span class="at">Glucose =</span> <span class="st">'new50931'</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a>  show_query <span class="sc">%&gt;%</span> </span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;SQL&gt;
 SELECT `subject_id`, `new50971` AS `Potassium`, `new51301` AS `WBC`, `new50931` AS `Glucose`, `new51221` AS `Hematocrit`, `new50902` AS `Chloride`, `new50983` AS `Sodium`, `new50882` AS `Bicarbonate`, `new50912` AS `Creatinine`
