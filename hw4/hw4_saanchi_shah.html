@@ -2608,7 +2608,24 @@ vertical-align: -.125em;
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#predicting-30-day-mortality" id="toc-predicting-30-day-mortality" class="nav-link active" data-scroll-target="#predicting-30-day-mortality"><span class="toc-section-number">1</span>  Predicting 30-day mortality</a></li>
+  <li><a href="#predicting-30-day-mortality" id="toc-predicting-30-day-mortality" class="nav-link active" data-scroll-target="#predicting-30-day-mortality"><span class="toc-section-number">0.1</span>  Predicting 30-day mortality</a></li>
+  <li><a href="#q1.-partition-data-into-50-training-set-and-50-test-set.-stratify-partitioning-according-the-30-day-mortality-status." id="toc-q1.-partition-data-into-50-training-set-and-50-test-set.-stratify-partitioning-according-the-30-day-mortality-status." class="nav-link" data-scroll-target="#q1.-partition-data-into-50-training-set-and-50-test-set.-stratify-partitioning-according-the-30-day-mortality-status."><span class="toc-section-number">1</span>  Q1. Partition data into 50% training set and 50% test set. Stratify partitioning according the 30-day mortality status.</a></li>
+  <li><a href="#q2.-train-and-tune-the-models-using-the-training-set." id="toc-q2.-train-and-tune-the-models-using-the-training-set." class="nav-link" data-scroll-target="#q2.-train-and-tune-the-models-using-the-training-set."><span class="toc-section-number">2</span>  Q2. Train and tune the models using the training set.</a>
+  <ul>
+  <li><a href="#pre-processing-steps" id="toc-pre-processing-steps" class="nav-link" data-scroll-target="#pre-processing-steps"><span class="toc-section-number">2.0.1</span>  Pre-processing steps</a></li>
+  </ul></li>
+  <li><a href="#q3a-compare-model-classification-performance-on-the-test-set.-report-both-the-area-under-roc-curve-and-accuracy-for-logistic-regression." id="toc-q3a-compare-model-classification-performance-on-the-test-set.-report-both-the-area-under-roc-curve-and-accuracy-for-logistic-regression." class="nav-link" data-scroll-target="#q3a-compare-model-classification-performance-on-the-test-set.-report-both-the-area-under-roc-curve-and-accuracy-for-logistic-regression."><span class="toc-section-number">3</span>  Q3)A Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for logistic regression.</a></li>
+  <li><a href="#q3b.-random-forest." id="toc-q3b.-random-forest." class="nav-link" data-scroll-target="#q3b.-random-forest."><span class="toc-section-number">4</span>  Q3)B. Random forest.</a>
+  <ul>
+  <li><a href="#pre-processing-steps-split-recipe" id="toc-pre-processing-steps-split-recipe" class="nav-link" data-scroll-target="#pre-processing-steps-split-recipe"><span class="toc-section-number">4.0.1</span>  1. Pre-processing steps (split + recipe)</a></li>
+  <li><a href="#best-fit-model-for-random-forest" id="toc-best-fit-model-for-random-forest" class="nav-link" data-scroll-target="#best-fit-model-for-random-forest"><span class="toc-section-number">4.0.2</span>  2. Best fit model for random forest</a></li>
+  </ul></li>
+  <li><a href="#q3c.-xgboost" id="toc-q3c.-xgboost" class="nav-link" data-scroll-target="#q3c.-xgboost"><span class="toc-section-number">5</span>  Q3)C. Xgboost</a>
+  <ul>
+  <li><a href="#prepreocessing-split-recipe" id="toc-prepreocessing-split-recipe" class="nav-link" data-scroll-target="#prepreocessing-split-recipe"><span class="toc-section-number">5.0.1</span>  1. Prepreocessing (split + recipe)</a></li>
+  <li><a href="#finalize-xgboost-model" id="toc-finalize-xgboost-model" class="nav-link" data-scroll-target="#finalize-xgboost-model"><span class="toc-section-number">5.0.2</span>  2. Finalize xgboost model</a></li>
+  </ul></li>
+  <li><a href="#report" id="toc-report" class="nav-link" data-scroll-target="#report"><span class="toc-section-number">6</span>  Report</a></li>
   </ul>
 </nav>
 </div>
@@ -2656,8 +2673,8 @@ vertical-align: -.125em;
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(parsnip))</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(parsnip))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="predicting-30-day-mortality" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="predicting-30-day-mortality"><span class="header-section-number">1</span> Predicting 30-day mortality</h2>
+<section id="predicting-30-day-mortality" class="level2" data-number="0.1">
+<h2 data-number="0.1" class="anchored" data-anchor-id="predicting-30-day-mortality"><span class="header-section-number">0.1</span> Predicting 30-day mortality</h2>
 <p>Using the ICU cohort <code>icu_cohort.rds</code> you built in Homework 3, develop at least three analytic approaches for predicting the 30-day mortality of patients admitted to ICU using demographic information (gender, age, marital status, ethnicity), first lab measurements during ICU stay, and first vital measurements during ICU stay. For example, you can use (1) logistic regression with elastic net (lasso + ridge) penalty (e.g., glmnet or keras package), (2) random forest, (3) boosting, and (4) support vector machines, or (5) MLP neural network (keras package)</p>
 <p>First, I will modify my ICU.rds file because I had an erroneous variable in my original file.</p>
 <div class="cell" data-layout-align="center">
@@ -2695,9 +2712,9 @@ vertical-align: -.125em;
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>           Temperature, </span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>           Heart_rate))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<ol type="1">
-<li>Partition data into 50% training set and 50% test set. Stratify partitioning according the 30-day mortality status.</li>
-</ol>
+</section>
+<section id="q1.-partition-data-into-50-training-set-and-50-test-set.-stratify-partitioning-according-the-30-day-mortality-status." class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Q1. Partition data into 50% training set and 50% test set. Stratify partitioning according the 30-day mortality status.</h1>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -2729,10 +2746,12 @@ vertical-align: -.125em;
       2375       2376       4751         18 </code></pre>
 </div>
 </div>
-<ol start="2" type="1">
-<li>Train and tune the models using the training set.</li>
-</ol>
-<p>A. First, I will preprocess the data for logistic regression</p>
+</section>
+<section id="q2.-train-and-tune-the-models-using-the-training-set." class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Q2. Train and tune the models using the training set.</h1>
+<section id="pre-processing-steps" class="level3" data-number="2.0.1">
+<h3 data-number="2.0.1" class="anchored" data-anchor-id="pre-processing-steps"><span class="header-section-number">2.0.1</span> Pre-processing steps</h3>
+<p>First, I will preprocess the data for logistic regression, xgboost and random forest</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>logit_recipe <span class="ot">&lt;-</span> </span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(</span>
@@ -2827,11 +2846,11 @@ Computational engine: glmnet </code></pre>
 # ℹ 490 more rows</code></pre>
 </div>
 </div>
-<ol start="3" type="1">
-<li>Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each model.</li>
-</ol>
-<p>A. Logistic regression</p>
-<p>3.A.<strong>Cross-validation for logistic regression</strong></p>
+</section>
+</section>
+<section id="q3a-compare-model-classification-performance-on-the-test-set.-report-both-the-area-under-roc-curve-and-accuracy-for-logistic-regression." class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Q3)A Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for logistic regression.</h1>
+<p>###Cross-validation for logistic regression + model fitting**</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(&quot;rsample&quot;)</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
@@ -2854,7 +2873,7 @@ Computational engine: glmnet </code></pre>
 <span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  5.843   0.207   6.053 </code></pre>
+  5.770   0.230   6.008 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>logit_fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -2983,7 +3002,12 @@ Computational engine: glmnet </code></pre>
 2 roc_auc  binary         0.701 Preprocessor1_Model1</code></pre>
 </div>
 </div>
-<p>3 B. Random forest. Since the initial split and preprocessing steps are the same, I will leave them untouched and start with the modeling step.</p>
+</section>
+<section id="q3b.-random-forest." class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Q3)B. Random forest.</h1>
+<section id="pre-processing-steps-split-recipe" class="level3" data-number="4.0.1">
+<h3 data-number="4.0.1" class="anchored" data-anchor-id="pre-processing-steps-split-recipe"><span class="header-section-number">4.0.1</span> 1. Pre-processing steps (split + recipe)</h3>
+<p>Since the initial split and preprocessing steps are the same, I will leave them untouched and start with the modeling step.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -3080,7 +3104,9 @@ Computational engine: ranger </code></pre>
 5 &lt;split [1900/475]&gt; Fold5</code></pre>
 </div>
 </div>
-<p>Best fit model for random forest</p>
+</section>
+<section id="best-fit-model-for-random-forest" class="level3" data-number="4.0.2">
+<h3 data-number="4.0.2" class="anchored" data-anchor-id="best-fit-model-for-random-forest"><span class="header-section-number">4.0.2</span> 2. Best fit model for random forest</h3>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit cross validation</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -3213,8 +3239,13 @@ Computational engine: ranger </code></pre>
 2 roc_auc  binary         0.724 Preprocessor1_Model1</code></pre>
 </div>
 </div>
-<p>Q 3C. Xgboost</p>
-<p>again, the pre processing steps remain the same so I will start by building the model and go on from there onwards to select the best fit.</p>
+</section>
+</section>
+<section id="q3c.-xgboost" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Q3)C. Xgboost</h1>
+<section id="prepreocessing-split-recipe" class="level3" data-number="5.0.1">
+<h3 data-number="5.0.1" class="anchored" data-anchor-id="prepreocessing-split-recipe"><span class="header-section-number">5.0.1</span> 1. Prepreocessing (split + recipe)</h3>
+<p>Again, the pre processing steps remain the same so I will start by building the model and go on from there onwards to select the best fit.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># build model</span></span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -3398,7 +3429,9 @@ Computational engine: xgboost </code></pre>
 1          1     0.0129 Preprocessor1_Model13</code></pre>
 </div>
 </div>
-<p>Finalize xgboost model</p>
+</section>
+<section id="finalize-xgboost-model" class="level3" data-number="5.0.2">
+<h3 data-number="5.0.2" class="anchored" data-anchor-id="finalize-xgboost-model"><span class="header-section-number">5.0.2</span> 2. Finalize xgboost model</h3>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Final workflow</span></span>
 <span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>final_wf <span class="ot">&lt;-</span> gb_wf <span class="sc">%&gt;%</span></span>
@@ -3451,7 +3484,12 @@ Computational engine: xgboost </code></pre>
 2 roc_auc  binary         0.717 Preprocessor1_Model1</code></pre>
 </div>
 </div>
-<p>Report: It appears that the accuracy for each of these models is pretty similar. Xgboost: ROC = 0.717, Accuracy = 0.748 Random forest: ROC = 0.724, Accuracy = 0.742 Logistic Regression: ROC = 0.70, Accuracy = 0.7449</p>
+</section>
+</section>
+<section id="report" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Report</h1>
+<p><strong>It appears that the accuracy for each of these models is pretty similar.</strong></p>
+<p>Xgboost: ROC = 0.717, Accuracy = 0.748 Random forest: ROC = 0.724, Accuracy = 0.742 Logistic Regression: ROC = 0.70, Accuracy = 0.7449</p>
 </section>
 
 </main>
