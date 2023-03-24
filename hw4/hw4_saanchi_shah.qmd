@@ -420,3 +420,6 @@ final_fit %>%
   collect_metrics()
 ```
 
+Xgboost: ROC = 0.717, Accuracy = 0.748
+Random forest: ROC = 0.724, Accuracy = 0.742
+Logistic Regression: ROC = 0.70, Accuracy = 0.7449
