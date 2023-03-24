@@ -22,12 +22,15 @@ knitr:
 ---
 
 Display machine information:
+
 ```{r}
 #| eval: false
 
 sessionInfo()
 ```
+
 Load database libraries and the tidyverse frontend:
+
 ```{r}
 #| eval: false
 
@@ -48,6 +51,7 @@ suppressPackageStartupMessages(library(parsnip))
 Using the ICU cohort `icu_cohort.rds` you built in Homework 3, develop at least three analytic approaches for predicting the 30-day mortality of patients admitted to ICU using demographic information (gender, age, marital status, ethnicity), first lab measurements during ICU stay, and first vital measurements during ICU stay. For example, you can use (1) logistic regression with elastic net (lasso + ridge) penalty (e.g., glmnet or keras package), (2) random forest, (3) boosting, and (4) support vector machines, or (5) MLP neural network (keras package)
 
 First, I will modify my ICU.rds file because I had an erroneous variable in my original file.
+
 ```{r}
 library(tidyverse)
 
@@ -85,8 +89,7 @@ icu_cohort_subset <-
   
 ```
 
-
-1. Partition data into 50% training set and 50% test set. Stratify partitioning according the 30-day mortality status.
+# Q1. Partition data into 50% training set and 50% test set. Stratify partitioning according the 30-day mortality status.
 
 ```{r}
 library(tidymodels)
@@ -114,10 +117,11 @@ dim(data_split)
 
 ```
 
+# Q2. Train and tune the models using the training set.
 
-2. Train and tune the models using the training set.
+### Pre-processing steps
+First, I will preprocess the data for logistic regression, xgboost and random forest
 
-A. First, I will preprocess the data for logistic regression
 ```{r}
 
 
@@ -166,12 +170,10 @@ param_grid
 
 ```
 
+# Q3)A Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for logistic regression.
 
-3. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each model.
 
-A. Logistic regression
-
-3.A.**Cross-validation for logistic regression**
+###Cross-validation for logistic regression + model fitting**
 
 ```{r}
 
@@ -231,7 +233,10 @@ final_fit %>%
   collect_metrics()
 ```
 
-3 B. Random forest. Since the initial split and preprocessing steps are the same,  I will leave them untouched and start with the modeling step.
+# Q3)B. Random forest.
+
+### 1. Pre-processing steps (split + recipe)
+Since the initial split and preprocessing steps are the same, I will leave them untouched and start with the modeling step.
 
 ```{r}
 # model
@@ -272,7 +277,7 @@ folds <- vfold_cv(icu_other, v = 5)
 folds
 ```
 
-Best fit model for random forest
+### 2. Best fit model for random forest
 
 ```{r}
 # fit cross validation
@@ -328,10 +333,9 @@ final_fit %>%
 
 ```
 
-
-Q 3C. Xgboost
-
-again, the pre processing steps remain the same so I will start by building the model and go on from there onwards to select the best fit.
+# Q3)C. Xgboost
+### 1. Prepreocessing (split + recipe)
+Again, the pre processing steps remain the same so I will start by building the model and go on from there onwards to select the best fit.
 
 ```{r}
 
@@ -405,8 +409,7 @@ best_gb <- gb_fit %>%
 best_gb
 ```
 
-
-Finalize xgboost model
+### 2. Finalize xgboost model
 
 ```{r}
 # Final workflow
@@ -426,7 +429,8 @@ final_fit
 final_fit %>% 
   collect_metrics()
 ```
-Report: It appears that the accuracy for each of these models is pretty similar. 
-Xgboost: ROC = 0.717, Accuracy = 0.748
-Random forest: ROC = 0.724, Accuracy = 0.742
-Logistic Regression: ROC = 0.70, Accuracy = 0.7449
+
+# Report
+**It appears that the accuracy for each of these models is pretty similar.**
+
+Xgboost: ROC = 0.717, Accuracy = 0.748 Random forest: ROC = 0.724, Accuracy = 0.742 Logistic Regression: ROC = 0.70, Accuracy = 0.7449
